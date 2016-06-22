@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.google.gson.JsonObject;
@@ -44,7 +45,9 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     @Override
     public void Welcomme(JsonObject json) {
-        fTrans.remove(mFragment.get("welcome"));
+        Log.i("TAG","info");
+        fTrans = getFragmentManager().beginTransaction();
+        fTrans.replace(R.id.frgmCont,mFragment.get("register"));
         fTrans.commit();
     }
 
@@ -57,38 +60,53 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
         mFragment.put("welcome", new WeclomeFragment());
 
+
+
+
+
         fTrans = getFragmentManager().beginTransaction();
         fTrans.add(R.id.frgmCont, mFragment.get("welcome"));
         fTrans.commit();
 
-        try {
-            Socket socket = new Socket(HOST, PORT);
-            System.out.println("Hello");
-            MessageSender sender = new MessageSender(socket);
-            Thread senderT = new Thread(sender);
+        final MessageListener listener = this;
 
-            mFragment.put("register", new RegFragment(sender));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Socket socket = new Socket(HOST, PORT);
+
+                    MessageSender sender = new MessageSender(socket);
+                    Thread senderT = new Thread(sender);
+
+                    mFragment.put("register", new RegFragment(sender));
 
 
-            MessageReceiver messageReceiver = new MessageReceiver(socket);
-            messageReceiver.setMessageListener(this);
-            Thread receiver = new Thread(messageReceiver);
+                    MessageReceiver messageReceiver = new MessageReceiver(socket);
+                    messageReceiver.setMessageListener(listener);
+                    Thread receiver = new Thread(messageReceiver);
+
+                    Log.i("TAG", "info");
 
 
-            receiver.start();
-            senderT.start();
-            receiver.join();
-            senderT.join();
-        }
+                    receiver.start();
+                    senderT.start();
+                    receiver.join();
+                    senderT.join();
 
-        catch (IOException e) {
-            System.out.println("Connection aborted due to exception " + e.getMessage() );
-        }
+                }
 
-        catch (InterruptedException e) {
-            e.printStackTrace();
-            System.out.println("Abnormal interruption. Good bye");
-        }
+                catch (IOException e) {
+                    System.out.println("Connection aborted due to exception " + e.getMessage() );
+                }
+
+                catch (InterruptedException e) {
+                    e.printStackTrace();
+                    System.out.println("Abnormal interruption. Good bye");
+                }
+            }
+        }).start();
+
     }
 }
 

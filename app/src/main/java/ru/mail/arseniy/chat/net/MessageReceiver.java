@@ -1,5 +1,7 @@
 package ru.mail.arseniy.chat.net;
 
+import android.util.Log;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -12,6 +14,7 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
+import java.util.Objects;
 
 import ru.mail.arseniy.chat.Message.Message;
 import ru.mail.arseniy.chat.Message.MsgReg;
@@ -55,6 +58,7 @@ public class MessageReceiver implements Runnable {
                     //offset = 0;
                     cleanup = false;
                 }
+
                 // Запись в data производится от 0
                 int readBytes = mStream.read(data);
                 if (readBytes != -1) {
@@ -64,11 +68,13 @@ public class MessageReceiver implements Runnable {
                     String result = outputStream.toString("utf-8");
                     if (result.endsWith("}")) {
                         try {
+
                             JsonElement element = parser.parse(result);
                             JsonObject json = element.getAsJsonObject();
                             String action = json.get("action").getAsString();
                             if (action != null) {
-                                if (action == "welcome") {
+                                if (action.equals("welcome")) {
+                                    Log.i("TAG", "info");
                                     messageListener.Welcomme(json);
                                     cleanup = true;
                                 }
