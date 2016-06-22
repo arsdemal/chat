@@ -9,7 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import ru.mail.arseniy.chat.R;
-import ru.mail.arseniy.chat.action.Registration;
+import ru.mail.arseniy.chat.action.ActionReg;
 import ru.mail.arseniy.chat.net.MessageSender;
 
 public class RegFragment extends Fragment {
@@ -26,9 +26,9 @@ public class RegFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_reg,container,false);
 
-        fLogin = (EditText)view.findViewById(R.id.editLogin);
-        fNickname = (EditText)view.findViewById(R.id.editNickname);
-        fPass = (EditText)view.findViewById(R.id.editPass);
+        fLogin = (EditText)view.findViewById(R.id.regLogin);
+        fNickname = (EditText)view.findViewById(R.id.regNick);
+        fPass = (EditText)view.findViewById(R.id.regPass);
         final Button button = (Button)view.findViewById(R.id.buttonReg);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -37,7 +37,7 @@ public class RegFragment extends Fragment {
                 String nickname = fNickname.getText().toString();
                 String pass = fPass.getText().toString();
 
-                Registration reg = new Registration();
+                ActionReg reg = new ActionReg();
                 reg.setData(login,nickname,pass);
                 messageSender.setCurrentAction(reg.getAction());
             }

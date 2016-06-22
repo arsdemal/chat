@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class Registration implements Action {
+public class ActionReg implements Action {
 
     private String mLogin;
     private String mPass;

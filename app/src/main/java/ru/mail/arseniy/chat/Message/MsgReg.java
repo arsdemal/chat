@@ -16,7 +16,7 @@ public class MsgReg implements Message {
     @Override
     public String doOutput() {
         if (status == 0) {
-            return "Registration successful!";
+            return "ActionReg successful!";
         }
         else {
             return "Error! " + error;

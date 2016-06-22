@@ -15,6 +15,7 @@ import java.net.Socket;
 import java.util.HashMap;
 
 import ru.mail.arseniy.chat.R;
+import ru.mail.arseniy.chat.ui.AuthFragment;
 import ru.mail.arseniy.chat.ui.RegFragment;
 import ru.mail.arseniy.chat.ui.WeclomeFragment;
 
@@ -30,25 +31,21 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     public static final int PORT = 7777;
 
     @Override
-    public void onMessageReceived(String info) {
-        infoText.setText(info);
-    }
-
-    @Override
-    public void setFragment(String fragment) {
-    }
-
-    @Override
-    public Fragment getFragment() {
-        return null;
-    }
-
-    @Override
     public void Welcomme(JsonObject json) {
         Log.i("TAG","info");
         fTrans = getFragmentManager().beginTransaction();
-        fTrans.replace(R.id.frgmCont,mFragment.get("register"));
+        fTrans.replace(R.id.frgmCont, mFragment.get("register"));
         fTrans.commit();
+    }
+
+    @Override
+    public void Auth(JsonObject json) {
+
+    }
+
+    @Override
+    public void Register(JsonObject json) {
+
     }
 
 
@@ -79,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                     MessageSender sender = new MessageSender(socket);
                     Thread senderT = new Thread(sender);
 
-                    mFragment.put("register", new RegFragment(sender));
+                    mFragment.put("register", new AuthFragment(sender));
 
 
                     MessageReceiver messageReceiver = new MessageReceiver(socket);

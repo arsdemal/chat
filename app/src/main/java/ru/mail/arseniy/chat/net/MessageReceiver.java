@@ -73,6 +73,24 @@ public class MessageReceiver implements Runnable {
                             JsonObject json = element.getAsJsonObject();
                             String action = json.get("action").getAsString();
                             if (action != null) {
+
+                                switch(action) {
+                                    case "welcome":
+                                        messageListener.Welcomme(json);
+                                        cleanup = true;
+                                        break;
+                                    case "auth":
+                                        break;
+                                    case "register":
+                                        break;
+                                    case "channellist":
+                                        break;
+                                    case "createchannel":
+                                        break;
+                                    case "enter":
+                                        break;
+                                }
+
                                 if (action.equals("welcome")) {
                                     Log.i("TAG", "info");
                                     messageListener.Welcomme(json);

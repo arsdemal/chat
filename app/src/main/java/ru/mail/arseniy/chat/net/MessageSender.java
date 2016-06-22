@@ -5,13 +5,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Scanner;
-
-import ru.mail.arseniy.chat.action.Action;
-import ru.mail.arseniy.chat.action.Registration;
 
 public class MessageSender implements Runnable {
     private final Socket mSocket;
