@@ -1,7 +1,5 @@
 package ru.mail.arseniy.chat.net;
 
-import android.util.Log;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -14,7 +12,6 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
-import java.util.Objects;
 
 import ru.mail.arseniy.chat.Message.Message;
 import ru.mail.arseniy.chat.Message.MsgReg;
@@ -24,13 +21,14 @@ public class MessageReceiver implements Runnable {
 
     private final Socket mSocket;
     private final InputStream mStream;
+    private Boolean flag;
 
     private MessageListener messageListener;
+
 
     public void setMessageListener(MessageListener messageListener) {
         this.messageListener = messageListener;
     }
-
 
     public HashMap<String, Message> mMessages = new HashMap<>();
 
@@ -49,10 +47,12 @@ public class MessageReceiver implements Runnable {
             boolean cleanup = false;
             byte[] data = new byte[32768];
             //int offset = 0;
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             JsonParser parser = new JsonParser();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
 
             do {
+
                 if (cleanup) {
                     outputStream.reset();
                     //offset = 0;
@@ -65,6 +65,8 @@ public class MessageReceiver implements Runnable {
                     outputStream.write(data, 0, readBytes);
                     //offset += readBytes;
                     outputStream.flush();
+                    outputStream.close();
+
                     String result = outputStream.toString("utf-8");
                     if (result.endsWith("}")) {
                         try {
@@ -74,14 +76,15 @@ public class MessageReceiver implements Runnable {
                             String action = json.get("action").getAsString();
                             if (action != null) {
 
-                                switch(action) {
+                                switch (action) {
                                     case "welcome":
-                                        messageListener.Welcomme(json);
-                                        cleanup = true;
+                                        messageListener.Welcome(json);
                                         break;
                                     case "auth":
+                                        messageListener.Auth(json);
                                         break;
                                     case "register":
+                                        messageListener.Register(json);
                                         break;
                                     case "channellist":
                                         break;
@@ -91,20 +94,13 @@ public class MessageReceiver implements Runnable {
                                         break;
                                 }
 
-                                if (action.equals("welcome")) {
-                                    Log.i("TAG", "info");
-                                    messageListener.Welcomme(json);
-                                    cleanup = true;
-                                }
+                                cleanup = true;
+
                             }
-                        }
-                        catch (JsonSyntaxException e) {
+                        } catch (JsonSyntaxException e) {
                             //not full json, continue
                         }
                     }
-                }
-                else {
-                    stop = true;
                 }
             } while (!stop);
             mStream.close();

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.JsonObject;
 
@@ -31,20 +32,46 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     public static final int PORT = 7777;
 
     @Override
-    public void Welcomme(JsonObject json) {
-        Log.i("TAG","info");
+    public void Welcome(JsonObject json) {
         fTrans = getFragmentManager().beginTransaction();
-        fTrans.replace(R.id.frgmCont, mFragment.get("register"));
+        fTrans.replace(R.id.frgmCont, mFragment.get("auth"));
         fTrans.commit();
     }
 
     @Override
     public void Auth(JsonObject json) {
-
+        JsonObject data = json.get("data").getAsJsonObject();
+        int status = data.get("status").getAsInt();
+        final String error = data.get("error").getAsString();
+        if (status!= 0) {
+            this.runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(getApplicationContext(), error, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     @Override
     public void Register(JsonObject json) {
+        JsonObject data = json.get("data").getAsJsonObject();
+        int status = data.get("status").getAsInt();
+        final String error = data.get("error").getAsString();
+        if (status!= 0) {
+            this.runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(getApplicationContext(), error, Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            fTrans = getFragmentManager().beginTransaction();
+            fTrans.replace(R.id.frgmCont, mFragment.get("auth"));
+            fTrans.commit();
+        }
+    }
+
+    @Override
+    public void ChannelList(JsonObject json) {
 
     }
 
@@ -74,21 +101,22 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                     Socket socket = new Socket(HOST, PORT);
 
                     MessageSender sender = new MessageSender(socket);
+                    MessageReceiver receiver = new MessageReceiver(socket);
+
                     Thread senderT = new Thread(sender);
 
-                    mFragment.put("register", new AuthFragment(sender));
+                    mFragment.put("auth", new AuthFragment(sender));
 
 
-                    MessageReceiver messageReceiver = new MessageReceiver(socket);
-                    messageReceiver.setMessageListener(listener);
-                    Thread receiver = new Thread(messageReceiver);
+                    receiver.setMessageListener(listener);
+                    Thread receiverT = new Thread(receiver);
 
                     Log.i("TAG", "info");
 
 
-                    receiver.start();
+                    receiverT.start();
                     senderT.start();
-                    receiver.join();
+                    receiverT.join();
                     senderT.join();
 
                 }

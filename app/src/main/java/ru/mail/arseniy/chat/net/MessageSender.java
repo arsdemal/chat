@@ -12,12 +12,9 @@ public class MessageSender implements Runnable {
     private String currentAction;
 
 
-    //private HashMap<String, Action> mActions = new HashMap<>();
-
     public MessageSender(Socket communicationSocket) throws IOException {
         mSocket = communicationSocket;
         mStream = new BufferedOutputStream(communicationSocket.getOutputStream());
-        //mActions.put("register", new MsgReg());
     }
 
     public void setCurrentAction(String action) {

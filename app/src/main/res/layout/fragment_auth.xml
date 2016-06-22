@@ -12,6 +12,7 @@
     <EditText
         android:layout_width="200dp"
         android:layout_height="wrap_content"
+        android:inputType="textPersonName"
         android:id="@+id/authLogin"/>
     <TextView
         android:layout_width="wrap_content"
@@ -20,6 +21,7 @@
     <EditText
         android:layout_width="200dp"
         android:layout_height="wrap_content"
+        android:inputType="textPassword"
         android:id="@+id/authPass"/>
     <Button
         android:layout_width="wrap_content"
