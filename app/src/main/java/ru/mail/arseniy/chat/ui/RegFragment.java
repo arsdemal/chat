@@ -38,7 +38,7 @@ public class RegFragment extends Fragment {
                 String pass = fPass.getText().toString();
 
                 ActionReg reg = new ActionReg();
-                reg.setData(login,nickname,pass);
+                reg.setData(login,pass,nickname);
                 messageSender.setCurrentAction(reg.getAction());
             }
         });

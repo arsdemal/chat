@@ -3,6 +3,7 @@ package ru.mail.arseniy.chat.ui;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,9 +37,9 @@ public class AuthFragment extends Fragment {
         bEnter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.i("TAG", "Create authorization action");
                 String login = fLogin.getText().toString();
                 String pass = fPass.getText().toString();
-
                 Action auth = new ActionAuth(login,pass);
                 messageSender.setCurrentAction(auth.getAction());
             }

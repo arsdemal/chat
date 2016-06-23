@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                     Toast.makeText(getApplicationContext(), error, Toast.LENGTH_SHORT).show();
                 }
             });
+        } else {
+            Log.i("TAG","Success authorization");
         }
     }
 
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         JsonObject data = json.get("data").getAsJsonObject();
         int status = data.get("status").getAsInt();
         final String error = data.get("error").getAsString();
+        Log.i("TAG","1");
         if (status!= 0) {
             this.runOnUiThread(new Runnable() {
                 public void run() {
@@ -64,9 +67,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                 }
             });
         } else {
-            fTrans = getFragmentManager().beginTransaction();
-            fTrans.replace(R.id.frgmCont, mFragment.get("auth"));
-            fTrans.commit();
+            Log.i("TAG","Success registration");
         }
     }
 
@@ -81,13 +82,8 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         mFragment.put("welcome", new WeclomeFragment());
-
-
-
-
-
+        
         fTrans = getFragmentManager().beginTransaction();
         fTrans.add(R.id.frgmCont, mFragment.get("welcome"));
         fTrans.commit();

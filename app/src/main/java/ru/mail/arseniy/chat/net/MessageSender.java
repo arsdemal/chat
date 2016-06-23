@@ -1,5 +1,7 @@
 package ru.mail.arseniy.chat.net;
 
+import android.util.Log;
+
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -19,6 +21,7 @@ public class MessageSender implements Runnable {
 
     public void setCurrentAction(String action) {
         this.currentAction = action;
+        Log.i("TAG", "Current action: " + action);
     }
 
     @Override
@@ -41,13 +44,14 @@ public class MessageSender implements Runnable {
                 }
             }
         }
+
         try {
             mStream.close();
             mSocket.close();
-            System.out.println("Connection is closed");
+            Log.i("TAG","Connection is closed");
         }
         catch (IOException e) {
-            System.out.println("Can not close socket. Application aborted");
+            Log.i("TAG","Can not close socket. Application aborted");
         }
     }
 }

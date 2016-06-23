@@ -1,5 +1,7 @@
 package ru.mail.arseniy.chat.action;
 
+import android.util.Log;
+
 import com.google.gson.JsonObject;
 
 import java.security.MessageDigest;
@@ -24,8 +26,9 @@ public class ActionReg implements Action {
             action.addProperty("action", "register");
             JsonObject data = new JsonObject();
             data.addProperty("login", mLogin);
-            data.addProperty("pass", md5(mPass));
+            data.addProperty("pass", mPass);
             data.addProperty("nick", mNick);
+            Log.i("TAG", mNick);
             action.add("data", data);
             return action.toString();
         }

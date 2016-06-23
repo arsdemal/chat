@@ -1,5 +1,7 @@
 package ru.mail.arseniy.chat.net;
 
+import android.util.Log;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -12,6 +14,7 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
+import java.util.List;
 
 import ru.mail.arseniy.chat.Message.Message;
 import ru.mail.arseniy.chat.Message.MsgReg;
@@ -49,6 +52,7 @@ public class MessageReceiver implements Runnable {
             //int offset = 0;
             JsonParser parser = new JsonParser();
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            JSONDataProcessor processor = new JSONDataProcessor();
 
 
             do {
@@ -62,50 +66,61 @@ public class MessageReceiver implements Runnable {
                 // Запись в data производится от 0
                 int readBytes = mStream.read(data);
                 if (readBytes != -1) {
+
                     outputStream.write(data, 0, readBytes);
                     //offset += readBytes;
                     outputStream.flush();
-                    outputStream.close();
+                    //outputStream.close();
 
                     String result = outputStream.toString("utf-8");
-                    if (result.endsWith("}")) {
-                        try {
+                    List<String> parts = processor.process(result);
+                    Log.i("TAG", result);
 
-                            JsonElement element = parser.parse(result);
-                            JsonObject json = element.getAsJsonObject();
-                            String action = json.get("action").getAsString();
-                            if (action != null) {
+                    for (String i: parts) {
+                        if (result.endsWith("}")) {
+                            try {
 
-                                switch (action) {
-                                    case "welcome":
-                                        messageListener.Welcome(json);
-                                        break;
-                                    case "auth":
-                                        messageListener.Auth(json);
-                                        break;
-                                    case "register":
-                                        messageListener.Register(json);
-                                        break;
-                                    case "channellist":
-                                        break;
-                                    case "createchannel":
-                                        break;
-                                    case "enter":
-                                        break;
+                                JsonElement element = parser.parse(i);
+                                JsonObject json = element.getAsJsonObject();
+                                String action = json.get("action").getAsString();
+                                Log.i("TAG", action);
+                                if (action != null) {
+
+                                    switch (action) {
+                                        case "welcome":
+                                            messageListener.Welcome(json);
+                                            break;
+                                        case "auth":
+                                            messageListener.Auth(json);
+                                            break;
+                                        case "register":
+                                            Log.i("TAG", "led to register");
+                                            messageListener.Register(json);
+                                            break;
+                                        case "channellist":
+                                            break;
+                                        case "createchannel":
+                                            break;
+                                        case "enter":
+                                            break;
+                                    }
+
+                                    cleanup = true;
+
                                 }
-
-                                cleanup = true;
-
+                            } catch (JsonSyntaxException e) {
+                                //not full json, continue
                             }
-                        } catch (JsonSyntaxException e) {
-                            //not full json, continue
                         }
                     }
+                }
+                else {
+                    stop = true;
                 }
             } while (!stop);
             mStream.close();
             mSocket.close();
-            System.out.println("Connection closed from server side. Good bye!");
+            Log.i("TAG","Connection closed from server side. Good bye!");
         }
         catch (SocketException e) {
             //connection is closed;
