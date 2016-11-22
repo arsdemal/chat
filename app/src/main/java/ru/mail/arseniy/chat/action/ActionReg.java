@@ -28,7 +28,6 @@ public class ActionReg implements Action {
             data.addProperty("login", mLogin);
             data.addProperty("pass", mPass);
             data.addProperty("nick", mNick);
-            Log.i("TAG", mNick);
             action.add("data", data);
             return action.toString();
         }

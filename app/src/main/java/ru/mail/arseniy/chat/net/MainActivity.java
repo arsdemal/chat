@@ -9,6 +9,7 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
@@ -16,8 +17,10 @@ import java.net.Socket;
 import java.util.HashMap;
 
 import ru.mail.arseniy.chat.R;
+import ru.mail.arseniy.chat.action.Action;
+import ru.mail.arseniy.chat.action.ActionChannelList;
 import ru.mail.arseniy.chat.ui.AuthFragment;
-import ru.mail.arseniy.chat.ui.RegFragment;
+import ru.mail.arseniy.chat.ui.ChannelListFragment;
 import ru.mail.arseniy.chat.ui.WeclomeFragment;
 
 
@@ -28,8 +31,11 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     private HashMap<String, Fragment> mFragment = new HashMap<>();
 
-    public static final String HOST = "188.166.49.215";
+    public static final String HOST = "192.168.0.105";
     public static final int PORT = 7777;
+    private String sessionId;
+    private String userId;
+    private MessageSender sender;
 
     @Override
     public void Welcome(JsonObject json) {
@@ -51,6 +57,11 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             });
         } else {
             Log.i("TAG","Success authorization");
+            sessionId = data.get("sid").getAsString();
+            userId = data.get("cid").getAsString();
+            Action action = new ActionChannelList(sessionId,userId);
+            sender.setCurrentAction(action.getAction());
+
         }
     }
 
@@ -59,7 +70,6 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         JsonObject data = json.get("data").getAsJsonObject();
         int status = data.get("status").getAsInt();
         final String error = data.get("error").getAsString();
-        Log.i("TAG","1");
         if (status!= 0) {
             this.runOnUiThread(new Runnable() {
                 public void run() {
@@ -73,6 +83,26 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     @Override
     public void ChannelList(JsonObject json) {
+        JsonObject data = json.get("data").getAsJsonObject();
+        int status = data.get("status").getAsInt();
+        final String error = data.get("error").getAsString();
+        if (status!= 0) {
+            this.runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(getApplicationContext(), error, Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+
+            ChannelListFragment fragment = (ChannelListFragment)mFragment.get("channelList");
+            JsonArray channels = data.getAsJsonArray("channels");
+            Log.i("TAG", String.valueOf(data.get("channels")));
+            fragment.setData(data.getAsJsonArray("channels"));
+            fTrans = getFragmentManager().beginTransaction();
+            fTrans.replace(R.id.frgmCont, fragment);
+            fTrans.commit();
+        }
+
 
     }
 
@@ -83,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         setContentView(R.layout.activity_main);
 
         mFragment.put("welcome", new WeclomeFragment());
-        
+
         fTrans = getFragmentManager().beginTransaction();
         fTrans.add(R.id.frgmCont, mFragment.get("welcome"));
         fTrans.commit();
@@ -96,12 +126,13 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                 try {
                     Socket socket = new Socket(HOST, PORT);
 
-                    MessageSender sender = new MessageSender(socket);
+                    sender = new MessageSender(socket);
                     MessageReceiver receiver = new MessageReceiver(socket);
 
                     Thread senderT = new Thread(sender);
 
                     mFragment.put("auth", new AuthFragment(sender));
+                    mFragment.put("channelList", new ChannelListFragment());
 
 
                     receiver.setMessageListener(listener);

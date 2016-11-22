@@ -48,8 +48,8 @@ public class MessageReceiver implements Runnable {
         try {
             boolean stop = false;
             boolean cleanup = false;
-            byte[] data = new byte[32768];
-            //int offset = 0;
+            byte[] data = new byte[128000];
+            int offset = 0;
             JsonParser parser = new JsonParser();
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             JSONDataProcessor processor = new JSONDataProcessor();
@@ -59,58 +59,58 @@ public class MessageReceiver implements Runnable {
 
                 if (cleanup) {
                     outputStream.reset();
-                    //offset = 0;
+                    offset = 0;
                     cleanup = false;
                 }
 
-                // Запись в data производится от 0
                 int readBytes = mStream.read(data);
+                Log.i("TAG",String.valueOf(readBytes));
                 if (readBytes != -1) {
 
-                    outputStream.write(data, 0, readBytes);
-                    //offset += readBytes;
+                    outputStream.write(data, offset, readBytes);
+                    offset += readBytes;
                     outputStream.flush();
                     //outputStream.close();
 
                     String result = outputStream.toString("utf-8");
                     List<String> parts = processor.process(result);
                     Log.i("TAG", result);
+                    if (parts != null) {
+                        for (String i : parts) {
+                                try {
 
-                    for (String i: parts) {
-                        if (result.endsWith("}")) {
-                            try {
+                                    JsonElement element = parser.parse(i);
+                                    JsonObject json = element.getAsJsonObject();
+                                    String action = json.get("action").getAsString();
+                                    Log.i("TAG", action);
+                                    if (action != null) {
 
-                                JsonElement element = parser.parse(i);
-                                JsonObject json = element.getAsJsonObject();
-                                String action = json.get("action").getAsString();
-                                Log.i("TAG", action);
-                                if (action != null) {
+                                        switch (action) {
+                                            case "welcome":
+                                                messageListener.Welcome(json);
+                                                break;
+                                            case "auth":
+                                                messageListener.Auth(json);
+                                                break;
+                                            case "register":
+                                                messageListener.Register(json);
+                                                break;
+                                            case "channellist":
+                                                messageListener.ChannelList(json);
+                                                Log.i("TAG","led to channel list");
+                                                break;
+                                            case "createchannel":
+                                                break;
+                                            case "enter":
+                                                break;
+                                        }
 
-                                    switch (action) {
-                                        case "welcome":
-                                            messageListener.Welcome(json);
-                                            break;
-                                        case "auth":
-                                            messageListener.Auth(json);
-                                            break;
-                                        case "register":
-                                            Log.i("TAG", "led to register");
-                                            messageListener.Register(json);
-                                            break;
-                                        case "channellist":
-                                            break;
-                                        case "createchannel":
-                                            break;
-                                        case "enter":
-                                            break;
+                                        cleanup = true;
+
                                     }
-
-                                    cleanup = true;
-
+                                } catch (JsonSyntaxException e) {
+                                    //not full json, continue
                                 }
-                            } catch (JsonSyntaxException e) {
-                                //not full json, continue
-                            }
                         }
                     }
                 }
