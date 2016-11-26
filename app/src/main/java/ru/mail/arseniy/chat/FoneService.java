@@ -1,8 +1,16 @@
 package ru.mail.arseniy.chat;
 
 /**
- * Created by Arsedemal on 26.11.2016.
+ * Фоновый процесс который делает запрос каждые n секунд и обновляет информацию
  */
 
+
+import android.util.Log;
+
 public class FoneService {
+
+
+
+
+
 }
