@@ -2,6 +2,7 @@ package ru.mail.arseniy.chat.net;
 
 
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 import retrofit2.Retrofit;
 import ru.mail.arseniy.chat.R;
@@ -25,8 +27,10 @@ public class MainActivity extends AppCompatActivity {
     private Controller controller;
     private Retrofit retrofit;
     private APIService service;
+    private FragmentManager fm;
 
-    public static final String HOST = "188.166.49.215";
+    private static final String TAG = "myLogs";
+    public static final String HOST = "192.168.0.105";
     public static final int PORT = 7777;
 
 
@@ -37,55 +41,35 @@ public class MainActivity extends AppCompatActivity {
 
         // Устанавливаем вспомогательные модули
         controller = new Controller(this);
+
+
+
         retrofit = new Retrofit.Builder()
-                .baseUrl("")
+                .baseUrl("https://api.github.com/")
                 .build();
+
         service = retrofit.create(APIService.class);
-        
 
-        mFragment.put("welcome", new WeclomeFragment());
+        fm = getFragmentManager();
 
-        fTrans = getFragmentManager().beginTransaction();
-        fTrans.add(R.id.frgmCont, mFragment.get("welcome"));
+        mFragment.put("auth", new AuthFragment(service,fm));
+
+        fTrans = fm.beginTransaction();
+        fTrans.add(R.id.frgmCont, mFragment.get("auth"));
+        //fTrans.addToBackStack(null);
         fTrans.commit();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Socket socket = new Socket(HOST, PORT);
 
-                    MessageSender sender = new MessageSender(socket);
-                    MessageReceiver receiver = new MessageReceiver(socket, controller);
+    }
 
-                    Thread senderT = new Thread(sender);
-
-                    mFragment.put("auth", new AuthFragment(sender));
-
-
-                    Thread receiverT = new Thread(receiver);
-
-                    Log.i("TAG", "info");
-
-
-                    receiverT.start();
-                    senderT.start();
-                    receiverT.join();
-                    senderT.join();
-
-                }
-
-                catch (IOException e) {
-                    System.out.println("Connection aborted due to exception " + e.getMessage() );
-                }
-
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                    System.out.println("Abnormal interruption. Good bye");
-                }
-            }
-        }).start();
-
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, "Pressed button back");
+        if (fm.getBackStackEntryCount()>0) {
+            fm.popBackStack();
+        } else {
+            super.onBackPressed();
+        }
     }
 }
 

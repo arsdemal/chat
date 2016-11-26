@@ -10,16 +10,16 @@ import android.widget.EditText;
 
 import ru.mail.arseniy.chat.R;
 import ru.mail.arseniy.chat.action.ActionReg;
-import ru.mail.arseniy.chat.net.MessageSender;
+import ru.mail.arseniy.chat.net.APIService;
 
 public class RegFragment extends Fragment {
 
     private EditText fLogin;
     private EditText fNickname;
     private EditText fPass;
-    private MessageSender messageSender;
-    public RegFragment(MessageSender messageSender) {
-        this.messageSender = messageSender;
+    private APIService service;
+    public RegFragment(APIService service) {
+        this.service = service;
     }
 
     @Override
@@ -39,10 +39,10 @@ public class RegFragment extends Fragment {
 
                 ActionReg reg = new ActionReg();
                 reg.setData(login,nickname,pass);
-                messageSender.setCurrentAction(reg.getAction());
             }
         });
         return  view;
     }
+
 
 }

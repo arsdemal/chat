@@ -4,42 +4,47 @@ package ru.mail.arseniy.chat.net;
  * Класс для работы с http запросами
  */
 
+import java.util.List;
+
+import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
-import retrofit2.Response;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 import ru.mail.arseniy.chat.User;
 
 public interface APIService {
 
     /**
-     * Созжаем нового юзера
+     * Создаем нового пользователя
      * @param username
      * @param cb
      */
     @POST("/users/{username}")
-    void addUser(@Path("username") String username, Callback<User> cb);
+    Call<User> addUser(@Path("username") String username, Callback<User> cb);
 
     /**
      * Проверяем есть ли пользователь с таким именем и паролем
      * @return
      */
     @GET("/users/{username}")
-    Response getUser();
+    Call<Boolean> isUserExists(@Query("login") String login, @Query("password") String password);
 
     /**
      * Получаем список пользователей
      * @return
      */
     @GET("/users")
-    Response getUsers();
+    Call<List<User>> getUsers();
 
     /**
      * Отправляем сообщение пользователю
+     * @param message
+     * @param login
      */
     @POST("/users/{username}/message")
-    void sendMessage();
+    void sendMessage(@Query("message") String message, @Query("login") String login);
 
 
 }

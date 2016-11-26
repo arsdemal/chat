@@ -1,5 +1,5 @@
 package ru.mail.arseniy.chat.ui;
 
 
-public class ChannelListFragment {
+public class UserListFragment {
 }

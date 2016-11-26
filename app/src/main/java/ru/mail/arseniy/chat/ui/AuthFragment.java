@@ -1,18 +1,24 @@
 package ru.mail.arseniy.chat.ui;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import ru.mail.arseniy.chat.R;
+import ru.mail.arseniy.chat.User;
 import ru.mail.arseniy.chat.action.Action;
 import ru.mail.arseniy.chat.action.ActionAuth;
-import ru.mail.arseniy.chat.net.MessageSender;
+import ru.mail.arseniy.chat.net.APIService;
 
 public class AuthFragment extends Fragment {
 
@@ -20,8 +26,12 @@ public class AuthFragment extends Fragment {
     private EditText fPass;
     private Button bEnter;
     private Button bRegister;
-    private MessageSender messageSender;
-    public AuthFragment (MessageSender messageSender) {this.messageSender = messageSender;}
+    private APIService service;
+    private FragmentManager fm;
+    public AuthFragment (APIService service, FragmentManager fm) {
+        this.service = service;
+        this.fm = fm;
+    }
 
 
     @Override
@@ -39,8 +49,25 @@ public class AuthFragment extends Fragment {
                 String login = fLogin.getText().toString();
                 String pass = fPass.getText().toString();
 
+                Call<Boolean> call = service.isUserExists(login,pass);
+                call.enqueue(new Callback<Boolean>() {
+                    @Override
+                    public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                        if (response.isSuccessful()) {
+                            // Пользователь существует
+                        } else {
+                            //
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Boolean> call, Throwable t) {
+                        // Ошибка сети
+                        Log.d("EROR",t.getMessage());
+                    }
+                });
+
                 Action auth = new ActionAuth(login,pass);
-                messageSender.setCurrentAction(auth.getAction());
             }
         });
 
@@ -48,8 +75,9 @@ public class AuthFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 FragmentTransaction fTrans;
-                fTrans = getFragmentManager().beginTransaction();
-                fTrans.replace(R.id.frgmCont,new RegFragment(messageSender));
+                fTrans = fm.beginTransaction();
+                fTrans.replace(R.id.frgmCont,new RegFragment(service));
+                fTrans.addToBackStack(null);
                 fTrans.commit();
             }
         });
