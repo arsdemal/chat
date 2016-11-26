@@ -30,6 +30,8 @@ public class RegFragment extends Fragment {
         fNickname = (EditText)view.findViewById(R.id.regNick);
         fPass = (EditText)view.findViewById(R.id.regPass);
         final Button button = (Button)view.findViewById(R.id.buttonReg);
+
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -37,10 +39,14 @@ public class RegFragment extends Fragment {
                 String nickname = fNickname.getText().toString();
                 String pass = fPass.getText().toString();
 
+
+                //TODO Сделать запрос на регистрацию
                 ActionReg reg = new ActionReg();
                 reg.setData(login,nickname,pass);
             }
         });
+
+
         return  view;
     }
 

@@ -41,22 +41,16 @@ public class MainActivity extends AppCompatActivity {
 
         // Устанавливаем вспомогательные модули
         controller = new Controller(this);
-
-
-
         retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.github.com/")
                 .build();
-
         service = retrofit.create(APIService.class);
 
+
         fm = getFragmentManager();
-
-        mFragment.put("auth", new AuthFragment(service,fm));
-
+        //mFragment.put("auth", new AuthFragment(service,fm));
         fTrans = fm.beginTransaction();
-        fTrans.add(R.id.frgmCont, mFragment.get("auth"));
-        //fTrans.addToBackStack(null);
+        fTrans.add(R.id.frgmCont, new AuthFragment(service,fm));
         fTrans.commit();
 
 

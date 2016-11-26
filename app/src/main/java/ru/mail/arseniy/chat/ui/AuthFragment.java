@@ -49,7 +49,8 @@ public class AuthFragment extends Fragment {
                 String login = fLogin.getText().toString();
                 String pass = fPass.getText().toString();
 
-                Call<Boolean> call = service.isUserExists(login,pass);
+                //TODO Сделать запрос на авторизацию
+                /*Call<Boolean> call = service.isUserExists(login,pass);
                 call.enqueue(new Callback<Boolean>() {
                     @Override
                     public void onResponse(Call<Boolean> call, Response<Boolean> response) {
@@ -65,9 +66,17 @@ public class AuthFragment extends Fragment {
                         // Ошибка сети
                         Log.d("EROR",t.getMessage());
                     }
-                });
+                });*/
 
-                Action auth = new ActionAuth(login,pass);
+                //Заглушка
+                if (login.equals("arsdemal") && pass.equals("123")) {
+                    FragmentTransaction fTrans;
+                    fTrans = fm.beginTransaction();
+                    fTrans.replace(R.id.frgmCont, new UserListFragment(service,fm));
+                    fTrans.addToBackStack(null);
+                    fTrans.commit();
+                }
+
             }
         });
 
