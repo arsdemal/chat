@@ -21,20 +21,14 @@ public class MessageReceiver implements Runnable {
 
     private final Socket mSocket;
     private final InputStream mStream;
-    private Boolean flag;
-
-    private MessageListener messageListener;
-
-
-    public void setMessageListener(MessageListener messageListener) {
-        this.messageListener = messageListener;
-    }
+    private Controller controller;
 
     public HashMap<String, Message> mMessages = new HashMap<>();
 
-    public MessageReceiver(Socket communicationSocket) throws IOException {
+    public MessageReceiver(Socket communicationSocket, Controller controller) throws IOException {
         mSocket = communicationSocket;
         mStream = new BufferedInputStream(communicationSocket.getInputStream());
+        this.controller = controller;
 
         mMessages.put("register", new MsgReg());
         mMessages.put("welcome", new MsgWelcome());
@@ -78,13 +72,13 @@ public class MessageReceiver implements Runnable {
 
                                 switch (action) {
                                     case "welcome":
-                                        messageListener.Welcome(json);
+                                        controller.Welcome(json);
                                         break;
                                     case "auth":
-                                        messageListener.Auth(json);
+                                        controller.Auth(json);
                                         break;
                                     case "register":
-                                        messageListener.Register(json);
+                                        controller.Register(json);
                                         break;
                                     case "channellist":
                                         break;
