@@ -41,8 +41,11 @@ public class RegFragment extends Fragment {
 
 
                 //TODO Сделать запрос на регистрацию
-                ActionReg reg = new ActionReg();
-                reg.setData(login,nickname,pass);
+
+
+
+
+
             }
         });
 

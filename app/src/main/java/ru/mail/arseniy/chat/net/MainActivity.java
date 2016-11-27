@@ -48,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         fm = getFragmentManager();
-        //mFragment.put("auth", new AuthFragment(service,fm));
         fTrans = fm.beginTransaction();
         fTrans.add(R.id.frgmCont, new AuthFragment(service,fm));
         fTrans.commit();

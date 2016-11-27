@@ -32,7 +32,7 @@ public interface APIService {
     Call<Boolean> isUserExists(@Query("login") String login, @Query("password") String password);
 
     /**
-     * Получаем список пользователей
+     * Получаем список пользователей с полями (login,name,open_key,status)
      * @return
      */
     @GET("/users")
