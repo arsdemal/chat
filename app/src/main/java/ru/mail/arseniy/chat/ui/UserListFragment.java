@@ -22,10 +22,12 @@ public class UserListFragment extends Fragment {
     private APIService service;
     private ListView users;
     private FragmentManager fm;
+    private String login;
 
-    public UserListFragment(APIService service, FragmentManager fm) {
+    public UserListFragment(APIService service, FragmentManager fm, String login) {
         this.service = service;
         this.fm = fm;
+        this.login = login;
     }
 
     @Override
@@ -48,7 +50,7 @@ public class UserListFragment extends Fragment {
 
                 //TODO Передать уникальный итендификатор для передачи сообщения ()
                 FragmentTransaction ft = fm.beginTransaction();
-                ft.replace(R.id.frgmCont, new UserChatFragment(service, nameUser[i]));
+                ft.replace(R.id.frgmCont, new UserChatFragment(service, login));
                 ft.addToBackStack(null);
                 ft.commit();
 

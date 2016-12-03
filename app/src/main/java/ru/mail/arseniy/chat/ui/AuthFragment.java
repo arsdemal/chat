@@ -19,6 +19,7 @@ import ru.mail.arseniy.chat.User;
 import ru.mail.arseniy.chat.action.Action;
 import ru.mail.arseniy.chat.action.ActionAuth;
 import ru.mail.arseniy.chat.net.APIService;
+import ru.mail.arseniy.chat.net.MainActivity;
 
 public class AuthFragment extends Fragment {
 
@@ -69,10 +70,16 @@ public class AuthFragment extends Fragment {
                 });*/
 
                 //Заглушка
-                if (login.equals("arsdemal") && pass.equals("123")) {
+                if (pass.equals("123")) {
+
+                    MainActivity mainActivity = (MainActivity)getActivity();
+                    mainActivity.setUserName(login);
+
+
+
                     FragmentTransaction fTrans;
                     fTrans = fm.beginTransaction();
-                    fTrans.replace(R.id.frgmCont, new UserListFragment(service,fm));
+                    fTrans.replace(R.id.frgmCont, new UserListFragment(service,fm,login));
                     fTrans.addToBackStack(null);
                     fTrans.commit();
                 }
