@@ -1,13 +1,9 @@
 package ru.mail.arseniy.chat.ui;
 
 import android.app.Fragment;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,13 +12,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.JsonObject;
 
-import java.io.IOException;
 import java.math.BigInteger;
-import java.net.Socket;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -34,7 +27,6 @@ import java.util.Arrays;
 import java.util.Stack;
 
 import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 
 import ru.mail.arseniy.chat.R;
 import ru.mail.arseniy.chat.action.Action;
@@ -52,28 +44,26 @@ import ru.mail.arseniy.chat.net.MessageSender;
 public class UserChatFragment extends Fragment {
 
     private static final String TAG = "UserChatFragment";
-    public static final String HOST = "192.168.137.1";
-    public static final int PORT = 7777;
 
     private Button sendButton;
     private Button cancelButton;
     private EditText userNameToE;
     private TextView windowChat;
     private EditText editText;
-    private APIService service;
     private String thisName;
+    private String userNameFrom;
+    private Handler chatHandler;
     private MessageSender sender;
     private MessageReceiver receiver;
-    private String userNameFrom;
-    private Handler handler;
 
     private Key publicKey = null;
     private Key privateKey = null;
     private Stack<String> messages;
 
-    public UserChatFragment (APIService service, String thisName) {
-        this.service = service;
+    public UserChatFragment (String thisName, MessageReceiver receiver, MessageSender sender) {
         this.thisName = thisName;
+        this.receiver = receiver;
+        this.sender = sender;
     }
 
     @Override
@@ -145,7 +135,7 @@ public class UserChatFragment extends Fragment {
             }
         } );
 
-        handler = new Handler() {
+        chatHandler = new Handler() {
             public void handleMessage(Message message) {
 
 
@@ -160,8 +150,6 @@ public class UserChatFragment extends Fragment {
                 if (actionType.equals("send")) {
 
                     if (data.get("loginTo").getAsString().equals(thisName)) {
-
-                        //byte[] encodedBytes = data.get("msg").getAsString().getBytes();
 
                         String s = data.get("msg").getAsString();
 
@@ -216,7 +204,6 @@ public class UserChatFragment extends Fragment {
 
                         String userNameTo = data.get("loginFrom").getAsString();
 
-                        //String s = Base64.encodeToString(encodedBytes, Base64.DEFAULT);
                         String s = bytesToString(encodedBytes);
                         Action action = new ActionMsg(userNameTo, userNameFrom, s);
                         sender.setCurrentAction(action.getAction());
@@ -239,58 +226,10 @@ public class UserChatFragment extends Fragment {
             }
         };
 
-
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Socket socket = new Socket(HOST, PORT);
-
-                    sender = new MessageSender(socket);
-                    receiver = new MessageReceiver(socket,handler);
-                    //receiver.setMessageListener(messageListener);
-
-                    Thread senderT = new Thread(sender);
-                    Thread receiverT = new Thread(receiver);
-
-                    receiverT.start();
-                    senderT.start();
-                    receiverT.join();
-                    senderT.join();
-
-                }
-
-                catch (IOException e) {
-                    System.out.println("Connection aborted due to exception " + e.getMessage() );
-                }
-
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                    System.out.println("Abnormal interruption. Good bye");
-                }
-            }
-        }).start();
-
+        receiver.setChatHandler(chatHandler);
 
         return view;
 
-    }
-
-    /**
-     * Получаем сообщения из локальной бд
-     */
-    public void updateMessages() {
-        //TODO
-    }
-
-    public class UpdateReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG,"update list of messages");
-            updateMessages();
-        }
     }
 
     public  String bytesToString(byte[] b) {

@@ -25,8 +25,9 @@ public class MessageReceiver implements Runnable {
     private static final String TAG = "MessageReceiver";
     private final Socket mSocket;
     private final InputStream mStream;
-    private Boolean flag;
-    private Handler handler;
+    private Handler chatHandler;
+    private Handler AuthHandler;
+    private Handler RegHandler;
 
     private MessageListener messageListener;
 
@@ -37,13 +38,16 @@ public class MessageReceiver implements Runnable {
 
     public HashMap<String, Message> mMessages = new HashMap<>();
 
-    public MessageReceiver(Socket communicationSocket, Handler handler) throws IOException {
+    public MessageReceiver(Socket communicationSocket) throws IOException {
         mSocket = communicationSocket;
         mStream = new BufferedInputStream(communicationSocket.getInputStream());
-        this.handler = handler;
 
         mMessages.put("register", new MsgReg());
         mMessages.put("welcome", new MsgWelcome());
+    }
+
+    public void setChatHandler(Handler handler) {
+        this.chatHandler = handler;
     }
 
     @Override
@@ -81,8 +85,6 @@ public class MessageReceiver implements Runnable {
                     outputStream.flush();
                     outputStream.close();
 
-
-
                     String result = outputStream.toString("utf-8");
 
                     Log.d(TAG,result);
@@ -94,30 +96,18 @@ public class MessageReceiver implements Runnable {
                             JsonObject json = element.getAsJsonObject();
                             String action = json.get("action").getAsString();
 
-                            //Log.d(TAG,json.toString());
-
-                            android.os.Message message = android.os.Message.obtain(handler,0,0,0,json);
-                            handler.sendMessage(message);
-
                             if (action != null) {
 
                                 switch (action) {
-                                    case "welcome":
-                                        //messageListener.Welcome(json);
-                                        break;
                                     case "auth":
-                                        //messageListener.Auth(json);
                                         break;
                                     case "register":
-                                        //messageListener.Register(json);
-                                        break;
-                                    case "channellist":
-                                        break;
-                                    case "createchannel":
                                         break;
                                     case "send":
-                                        //Log.d("Receiver","get message");
-                                        //messageListener.GetMessage(json);
+                                    case "getOpenKey":
+                                    case "sendOpenKey":
+                                        android.os.Message message = android.os.Message.obtain(chatHandler,0,0,0,json);
+                                        chatHandler.sendMessage(message);
                                         break;
                                     case "enter":
                                         break;

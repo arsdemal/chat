@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -31,16 +32,13 @@ public class MainActivity extends AppCompatActivity {
 
     FragmentTransaction fTrans;
 
-    private HashMap<String, Fragment> mFragment = new HashMap<>();
-    //private Controller controller;
-    private Retrofit retrofit;
-    private APIService service;
     private FragmentManager fm;
     private String userName;
-    //private GAuthHelper
+    private MessageSender sender;
+    private MessageReceiver receiver;
 
     private static final String TAG = "myLogs";
-    public static final String HOST = "93.175.9.247";
+    public static final String HOST = "192.168.0.105";
     public static final int PORT = 7777;
 
 
@@ -49,26 +47,46 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Устанавливаем вспомогательные модули
-        //controller = new Controller(this);
-        retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.github.com/")
-                .build();
-        service = retrofit.create(APIService.class);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Socket socket = new Socket(HOST, PORT);
+
+                    sender = new MessageSender(socket);
+                    receiver = new MessageReceiver(socket);
+                    //receiver.setMessageListener(messageListener);
+                    if (receiver != null) {
+                        Log.d(TAG,"Good");
+                    }
+
+                    Thread senderT = new Thread(sender);
+                    Thread receiverT = new Thread(receiver);
+
+                    receiverT.start();
+                    senderT.start();
+                    receiverT.join();
+                    senderT.join();
+
+                }
+
+                catch (IOException e) {
+                    System.out.println("Connection aborted due to exception " + e.getMessage() );
+                }
+
+                catch (InterruptedException e) {
+                    e.printStackTrace();
+                    System.out.println("Abnormal interruption. Good bye");
+                }
+            }
+        }).start();
 
         fm = getFragmentManager();
         fTrans = fm.beginTransaction();
-        fTrans.add(R.id.frgmCont, new AuthFragment(service,fm));
-        fTrans.commit();
-
-        class OnError implements Handler.Callback {
-
-            @Override
-            public boolean handleMessage(Message message) {
-                return false;
-            }
+        while (receiver == null && sender == null) {
         }
-
+        fTrans.add(R.id.frgmCont, new AuthFragment(fm,receiver,sender));
+        fTrans.commit();
     }
 
     @Override

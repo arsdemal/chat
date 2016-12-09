@@ -20,6 +20,8 @@ import ru.mail.arseniy.chat.action.Action;
 import ru.mail.arseniy.chat.action.ActionAuth;
 import ru.mail.arseniy.chat.net.APIService;
 import ru.mail.arseniy.chat.net.MainActivity;
+import ru.mail.arseniy.chat.net.MessageReceiver;
+import ru.mail.arseniy.chat.net.MessageSender;
 
 public class AuthFragment extends Fragment {
 
@@ -27,11 +29,13 @@ public class AuthFragment extends Fragment {
     private EditText fPass;
     private Button bEnter;
     private Button bRegister;
-    private APIService service;
     private FragmentManager fm;
-    public AuthFragment (APIService service, FragmentManager fm) {
-        this.service = service;
+    private MessageReceiver receiver;
+    private MessageSender sender;
+    public AuthFragment (FragmentManager fm, MessageReceiver receiver, MessageSender sender) {
         this.fm = fm;
+        this.receiver = receiver;
+        this.sender = sender;
     }
 
 
@@ -51,23 +55,6 @@ public class AuthFragment extends Fragment {
                 String pass = fPass.getText().toString();
 
                 //TODO Сделать запрос на авторизацию
-                /*Call<Boolean> call = service.isUserExists(login,pass);
-                call.enqueue(new Callback<Boolean>() {
-                    @Override
-                    public void onResponse(Call<Boolean> call, Response<Boolean> response) {
-                        if (response.isSuccessful()) {
-                            // Пользователь существует
-                        } else {
-                            //
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<Boolean> call, Throwable t) {
-                        // Ошибка сети
-                        Log.d("EROR",t.getMessage());
-                    }
-                });*/
 
                 //Заглушка
                 if (pass.equals("123")) {
@@ -79,7 +66,7 @@ public class AuthFragment extends Fragment {
 
                     FragmentTransaction fTrans;
                     fTrans = fm.beginTransaction();
-                    fTrans.replace(R.id.frgmCont, new UserListFragment(service,fm,login));
+                    fTrans.replace(R.id.frgmCont, new UserChatFragment(login,receiver,sender));
                     fTrans.addToBackStack(null);
                     fTrans.commit();
                 }
@@ -92,7 +79,7 @@ public class AuthFragment extends Fragment {
             public void onClick(View v) {
                 FragmentTransaction fTrans;
                 fTrans = fm.beginTransaction();
-                fTrans.replace(R.id.frgmCont,new RegFragment(service));
+                fTrans.replace(R.id.frgmCont,new RegFragment());
                 fTrans.addToBackStack(null);
                 fTrans.commit();
             }

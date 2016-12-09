@@ -18,9 +18,6 @@ public class RegFragment extends Fragment {
     private EditText fNickname;
     private EditText fPass;
     private APIService service;
-    public RegFragment(APIService service) {
-        this.service = service;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
